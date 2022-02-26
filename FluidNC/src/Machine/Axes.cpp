@@ -189,6 +189,7 @@ namespace Machine {
 
     void Axes::group(Configuration::HandlerBase& handler) {
         handler.item("shared_stepper_disable_pin", _sharedStepperDisable);
+        handler.item("shared_stepper_reset_pin", _sharedStepperReset);
 
         // Handle axis names xyzabc.  handler.section is inferred
         // from a template.
@@ -224,6 +225,11 @@ namespace Machine {
             if (_axis[i] == nullptr) {
                 _axis[i] = new Axis(i);
             }
+        }
+
+        if (!_sharedStepperReset.undefined()) {
+            _sharedStepperReset.setAttr(Pin::Attr::Output | Pin::Attr::InitialOn);
+            _sharedStepperReset.on();
         }
     }
 
