@@ -8,6 +8,14 @@ stepping:
   dir_delay_us: 1
   disable_delay_us: 0
   
+kinematics:
+  parallel_delta:
+    crank_mm: 70.000
+    base_triangle_mm: 173.205
+    linkage_mm: 113.50
+    end_effector_triangle_mm: 86.603
+    max_negative_angle_rad: -1.047
+    max_positive_angle_rad: 1.571
 
 start:
   must_home: false
