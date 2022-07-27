@@ -11,8 +11,8 @@ stepping:
 kinematics:
   parallel_delta:
     crank_mm: 70.000
-    base_triangle_mm: 173.205
-    linkage_mm: 113.50
+    base_triangle_mm: 179.437
+    linkage_mm: 133.50
     end_effector_triangle_mm: 86.603
     max_negative_angle_rad: -1.047
     max_positive_angle_rad: 1.571

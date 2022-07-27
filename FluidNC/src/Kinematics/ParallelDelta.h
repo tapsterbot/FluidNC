@@ -50,11 +50,12 @@ namespace Kinematics {
         ~ParallelDelta() {}
 
     private:
-        //  Config items
-        float _crank_length;  // The length of the crank arm on the motor
-        float _base_triangle;
-        float _linkage_length;
-        float _end_effector_triangle_mm;
+        //  Config items Using geometry names from the published kinematics rather than typical Fluid Style
+        // To make the math easier to compare with the code
+        float rf;  // The length of the crank arm on the motor
+        float f;
+        float re;
+        float e;
 
         float _max_negative_angle = (M_PI / 3.0);  // default is 60 Deg up
         float _max_positive_angle = (M_PI / 2.0);  // default is 90 Deg down

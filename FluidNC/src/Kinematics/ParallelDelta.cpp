@@ -8,9 +8,35 @@
 
 #include <cmath>
 
-
-
 /*
+  ==================== How it Works ====================================
+  On a delta machine, Grbl axis units are in radians
+  The kinematics converts the cartesian moves in gcode into
+  the radians to move the arms. The Grbl motion planner never sees
+  the actual cartesian values.
+
+  To make the moves straight and smooth on a delta, the cartesian moves
+  are broken into small segments where the non linearity will not be noticed.
+  This is similar to how Grgl draws arcs.
+
+  If you request MPos status it will tell you the position in
+  arm angles. The MPos will report in cartesian values using forward kinematics. 
+  The arm 0 values (angle) are the arms at horizontal.
+
+  Positive angles are below horizontal.
+
+  The machine's Z zero point in the kinematics is parallel to the arm axes.
+  The offset of the Z distance from the arm axes to the end effector joints 
+  at arm angle zero will be printed at startup on the serial port.
+
+  Feedrate in gcode is in the cartesian units. This must be converted to the
+  angles. This is done by calculating the segment move distance and the angle 
+  move distance and applying that ration to the feedrate. 
+
+  FYI: http://forums.trossenrobotics.com/tutorials/introduction-129/delta-robot-kinematics-3276/
+  Better: http://hypertriangle.com/~alex/delta-robot-tutorial/
+
+
 Default configuration
 
 kinematics:
@@ -40,23 +66,18 @@ namespace Kinematics {
     float e;   // size of end effector side triangle
 
     void ParallelDelta::group(Configuration::HandlerBase& handler) {
-        handler.item("crank_mm", _crank_length, 50.0, 500.0);
-        handler.item("base_triangle_mm", _base_triangle, 20.0, 500.0);
-        handler.item("linkage_mm", _linkage_length, 20.0, 500.0);
-        handler.item("end_effector_triangle_mm", _end_effector_triangle_mm, 20.0, 500.0);
+        handler.item("crank_mm", rf, 50.0, 500.0);
+        handler.item("base_triangle_mm", f, 20.0, 500.0);
+        handler.item("linkage_mm", re, 20.0, 500.0);
+        handler.item("end_effector_triangle_mm", e, 20.0, 500.0);
 
-        handler.item("max_negative_angle_rad", _max_negative_angle, -(M_PI / 2.0), 0.0); // max angle up the arm can safely go
-        handler.item("max_positive_angle_rad", _max_positive_angle, 0.0, (M_PI / 2.0));  // max_angle down the arm can safely go
-
-        rf = _crank_length;                   // radius of the fixed side (length of motor cranks)
-        re = _base_triangle;                  // radius of end effector side (length of linkages)
-        f  = _base_triangle;                  // sized of fixed side triangel
-        e  = _end_effector_triangle_mm;       // size of end effector side triangle
+        handler.item("max_negative_angle_rad", _max_negative_angle, -(M_PI / 2.0), 0.0);  // max angle up the arm can safely go
+        handler.item("max_positive_angle_rad", _max_positive_angle, 0.0, (M_PI / 2.0));   // max_angle down the arm can safely go
     }
 
     void ParallelDelta::init() {
         float angles[MAX_N_AXIS]    = { 0.0, 0.0, 0.0 };
-        float cartesian[MAX_N_AXIS]  = { 0.0, 0.0, 0.0 };
+        float cartesian[MAX_N_AXIS] = { 0.0, 0.0, 0.0 };
 
         // Calculate the Z offset at the arm zero angles ...
         // Z offset is the z distance from the motor axes to the end effector axes at zero angle
@@ -66,7 +87,6 @@ namespace Kinematics {
         log_info("Kinematic system: " << name());
         log_info("  Z Offset:" << cartesian[Z_AXIS] << " Max neg angle:" << _max_negative_angle << " Max pos angle:" << _max_positive_angle);
 
-        
         //     grbl_msg_sendf(CLIENT_SERIAL,
         //                    MsgLevel::Info,
         //                    "DXL_COUNT_MIN %4.0f CENTER %d MAX %4.0f PER_RAD %d",
@@ -74,7 +94,6 @@ namespace Kinematics {
         //                    DXL_CENTER,
         //                    DXL_COUNT_MAX,
         //                    DXL_COUNT_PER_RADIAN);
-
     }
 
     bool ParallelDelta::cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position) {
@@ -85,6 +104,8 @@ namespace Kinematics {
     void ParallelDelta::motors_to_cartesian(float* cartesian, float* motors, int n_axis) {
         //read_settings();
         //log_info("motors_to_cartesian motors: (" << motors[0] << "," << motors[1] << "," << motors[2] << ")");
+
+        log_info("motors_to_cartesian rf:" << rf << " re:" << re << " f:" << f << " e:" << e);
 
         float t = (f - e) * tan30 / 2;
         //log_info("  t:" << t);
