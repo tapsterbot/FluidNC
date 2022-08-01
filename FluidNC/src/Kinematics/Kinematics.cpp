@@ -28,6 +28,11 @@ namespace Kinematics {
         return _system->motors_to_cartesian(cartesian, motors, n_axis);
     }
 
+    bool Kinematics::transform_cartesian_to_motors(float* motors, float* cartesian) {
+        Assert(_system != nullptr, "No kinematic system");
+        return _system->transform_cartesian_to_motors(motors, cartesian);
+    }
+
     void Kinematics::group(Configuration::HandlerBase& handler) {
         ::Kinematics::KinematicsFactory::factory(handler, _system);
         Assert(_system != nullptr, "No kinematics system.");
@@ -44,5 +49,7 @@ namespace Kinematics {
         _system->init();
     }
 
-    Kinematics::~Kinematics() { delete _system; }
+    Kinematics::~Kinematics() {
+        delete _system;
+    }
 };

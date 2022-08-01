@@ -44,6 +44,7 @@ namespace Kinematics {
         // void         kinematics_post_homing() override;
         bool cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position) override;
         void motors_to_cartesian(float* cartesian, float* motors, int n_axis) override;
+        bool transform_cartesian_to_motors(float* motors, float* cartesian) override;
 
         // Configuration handlers:
         void         validate() const override {}
@@ -63,9 +64,7 @@ namespace Kinematics {
         float re;
         float e;
 
-        float _max_negative_angle       = (M_PI / 3.0);  // default is 60 Deg up
-        float _max_positive_angle       = (M_PI / 2.0);  // default is 90 Deg down
-        float _kinematic_segment_len_mm = 1.0;           // the maximun segment length the move is broken into
+        float _kinematic_segment_len_mm = 1.0;  // the maximun segment length the move is broken into
 
         KinematicError delta_calcAngleYZ(float x0, float y0, float z0, float& theta);
         KinematicError delta_calcInverse(float* cartesian, float* angles);

@@ -170,6 +170,13 @@ namespace Kinematics {
         y = _left_anchor_y - h;  // flip
     }
 
+    bool WallPlotter::transform_cartesian_to_motors(float* motors, float* cartesian) {
+        // Motor space is cartesian space, so we do no transform.
+        // TO DO fix this
+        copyAxes(motors, cartesian);
+        return true;
+    }
+
     void WallPlotter::xy_to_lengths(float x, float y, float& left_length, float& right_length) {
         // Compute the hypotenuse of each triangle.
 

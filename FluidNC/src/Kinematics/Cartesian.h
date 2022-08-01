@@ -16,10 +16,10 @@ namespace Kinematics {
     public:
         Cartesian() = default;
 
-        Cartesian(const Cartesian&) = delete;
-        Cartesian(Cartesian&&)      = delete;
+        Cartesian(const Cartesian&)            = delete;
+        Cartesian(Cartesian&&)                 = delete;
         Cartesian& operator=(const Cartesian&) = delete;
-        Cartesian& operator=(Cartesian&&) = delete;
+        Cartesian& operator=(Cartesian&&)      = delete;
 
         // Kinematic Interface
 
@@ -28,6 +28,7 @@ namespace Kinematics {
         virtual bool kinematics_homing(AxisMask cycle_mask) override;
         virtual void kinematics_post_homing() override;
         virtual void motors_to_cartesian(float* cartesian, float* motors, int n_axis) override;
+        virtual bool transform_cartesian_to_motors(float* motors, float* cartesian) override;
 
         // Configuration handlers:
         void afterParse() override {}

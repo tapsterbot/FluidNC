@@ -32,6 +32,7 @@ namespace Kinematics {
         void         kinematics_post_homing() override;
         bool         cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position) override;
         void         motors_to_cartesian(float* cartesian, float* motors, int n_axis) override;
+        bool transform_cartesian_to_motors(float* motors, float* cartesian) override;
 
         // Configuration handlers:
         void         validate() const override {}
@@ -48,8 +49,6 @@ namespace Kinematics {
         void xy_to_lengths(float x, float y, float& left_length, float& right_length);
 
         void plan_homing_move(AxisMask axisMask, bool approach, bool seek);
-
-        void transform_cartesian_to_motors(float* motors, float* cartesian);
 
     protected:
         float _x_scaler = 1.0;

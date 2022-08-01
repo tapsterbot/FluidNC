@@ -3,7 +3,9 @@
 #include "../Machine/MachineConfig.h"
 
 namespace Kinematics {
-    void Cartesian::init() { log_info("Kinematic system: " << name()); }
+    void Cartesian::init() {
+        log_info("Kinematic system: " << name());
+    }
 
     bool Cartesian::kinematics_homing(AxisMask cycle_mask) {
         // Do nothing.
@@ -22,6 +24,11 @@ namespace Kinematics {
     void Cartesian::motors_to_cartesian(float* cartesian, float* motors, int n_axis) {
         // Motor space is cartesian space, so we do no transform.
         copyAxes(cartesian, motors);
+    }
+
+    bool Cartesian::transform_cartesian_to_motors(float* motors, float* cartesian) {
+        // Motor space is cartesian space, so we do no transform.
+        copyAxes(motors, cartesian);
     }
 
     // Configuration registration

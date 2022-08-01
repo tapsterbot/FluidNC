@@ -46,6 +46,7 @@ namespace Kinematics {
         void kinematics_post_homing();
         bool cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position);
         void motors_to_cartesian(float* cartesian, float* motors, int n_axis);
+        bool transform_cartesian_to_motors(float* motors, float* cartesian);
 
     private:
         ::Kinematics::KinematicSystem* _system = nullptr;
@@ -55,10 +56,10 @@ namespace Kinematics {
     public:
         KinematicSystem() = default;
 
-        KinematicSystem(const KinematicSystem&) = delete;
-        KinematicSystem(KinematicSystem&&)      = delete;
+        KinematicSystem(const KinematicSystem&)            = delete;
+        KinematicSystem(KinematicSystem&&)                 = delete;
         KinematicSystem& operator=(const KinematicSystem&) = delete;
-        KinematicSystem& operator=(KinematicSystem&&) = delete;
+        KinematicSystem& operator=(KinematicSystem&&)      = delete;
 
         // Kinematic system interface.
         virtual bool cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position) = 0;
@@ -66,6 +67,7 @@ namespace Kinematics {
         virtual bool kinematics_homing(AxisMask cycle_mask)                                         = 0;
         virtual void kinematics_post_homing()                                                       = 0;
         virtual void motors_to_cartesian(float* cartesian, float* motors, int n_axis)               = 0;
+        virtual bool transform_cartesian_to_motors(float* motors, float* cartesian)                 = 0;
 
         // Configuration interface.
         void afterParse() override {}

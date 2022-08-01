@@ -3,7 +3,7 @@ name: Tap Delta Dynamixel XYZ
 meta:
 stepping:
   engine: RMT
-  idle_ms: 255
+  idle_ms: 2000
   pulse_us: 4
   dir_delay_us: 1
   disable_delay_us: 0
@@ -14,8 +14,6 @@ kinematics:
     base_triangle_mm: 179.437
     linkage_mm: 133.50
     end_effector_triangle_mm: 86.603
-    max_negative_angle_rad: -1.047
-    max_positive_angle_rad: 1.571
 
 start:
   must_home: false
@@ -32,7 +30,7 @@ axes:
     max_travel_mm: 2.618
     soft_limits: false
     homing:
-      cycle: 2
+      cycle: 1
       positive_direction: false
       mpos_mm: -1.047
       feed_mm_per_min: 100.000
@@ -65,7 +63,7 @@ axes:
     max_travel_mm: 2.618
     soft_limits: false
     homing:
-      cycle: 2
+      cycle: 1
       positive_direction: false
       mpos_mm: -1.047
       feed_mm_per_min: 100.000
@@ -92,7 +90,7 @@ axes:
     max_travel_mm: 2.618
     soft_limits: false
     homing:
-      cycle: 2
+      cycle: 1
       positive_direction: false
       mpos_mm: -1.047
       feed_mm_per_min: 100.000

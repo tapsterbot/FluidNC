@@ -74,7 +74,9 @@ namespace MotorDrivers {
         startUpdateTask(_timer_ms);
     }
 
-    void Dynamixel2::config_message() { log_info("    " << name() << " id::" << _id << " Count(" << _countMin << "," << _countMax << ")"); }
+    void Dynamixel2::config_message() {
+        log_info("    " << name() << " id::" << _id << " Count(" << _countMin << "," << _countMax << ")");
+    }
 
     bool Dynamixel2::test() {
         uint16_t len = 3;
@@ -290,13 +292,16 @@ namespace MotorDrivers {
         uint32_t dxl_position;
 
         float* mpos = get_mpos();
+        float  motors[MAX_N_AXIS];
 
         dxl_count_min = float(_countMin);
         dxl_count_max = float(_countMax);
 
+        config->_kinematics->transform_cartesian_to_motors(motors, mpos);
+
         // map the mm range to the servo range
-        dxl_position = static_cast<uint32_t>(
-            mapConstrain(mpos[_axis_index], limitsMinPosition(_axis_index), limitsMaxPosition(_axis_index), dxl_count_min, dxl_count_max));
+        dxl_position = static_cast<uint32_t>(mapConstrain(
+            motors[_axis_index], limitsMinPosition(_axis_index), limitsMaxPosition(_axis_index), dxl_count_min, dxl_count_max));
 
         log_debug("dxl:" << _id << " pos:" << dxl_position);
 
@@ -307,7 +312,9 @@ namespace MotorDrivers {
         bulk_message[++bulk_message_index] = (dxl_position & 0xFF000000) >> 24;  // data
     }
 
-    void Dynamixel2::send_bulk_message() { dxl_finish_message(DXL_BROADCAST_ID, bulk_message, bulk_message_index - DXL_MSG_INSTR + 1); }
+    void Dynamixel2::send_bulk_message() {
+        dxl_finish_message(DXL_BROADCAST_ID, bulk_message, bulk_message_index - DXL_MSG_INSTR + 1);
+    }
 
     /*
     Static

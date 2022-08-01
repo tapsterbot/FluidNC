@@ -74,9 +74,6 @@ namespace Kinematics {
         handler.item("linkage_mm", re, 20.0, 500.0);
         handler.item("end_effector_triangle_mm", e, 20.0, 500.0);
 
-        handler.item("max_negative_angle_rad", _max_negative_angle, -(M_PI / 2.0), 0.0);  // max angle up the arm can safely go
-        handler.item("max_positive_angle_rad", _max_positive_angle, 0.0, (M_PI / 2.0));   // max_angle down the arm can safely go
-
         handler.item("kinematic_segment_len_mm", _kinematic_segment_len_mm, 0.05, 20.0);  //
     }
 
@@ -90,20 +87,12 @@ namespace Kinematics {
 
         // print a startup message to show the kinematics are enabled. Print the offset for reference
         log_info("Kinematic system: " << name());
-        log_info("  Z Offset:" << cartesian[Z_AXIS] << " Max neg angle:" << _max_negative_angle << " Max pos angle:" << _max_positive_angle);
+        log_info("  Z Offset:" << cartesian[Z_AXIS]);
 
-        //     grbl_msg_sendf(CLIENT_SERIAL,
-        //                    MsgLevel::Info,
-        //                    "DXL_COUNT_MIN %4.0f CENTER %d MAX %4.0f PER_RAD %d",
-        //                    DXL_COUNT_MIN,
-        //                    DXL_CENTER,
-        //                    DXL_COUNT_MAX,
-        //                    DXL_COUNT_PER_RADIAN);
+        
 
-        plan_line_data_t plan_data;
-        delta_calcInverse(cartesian, angles);
-
-        log_info("delta_calcInverse (" << angles[0] << "," << angles[1] << "," << angles[2] << ")");
+        //plan_line_data_t plan_data;
+        //delta_calcInverse(cartesian, angles);        
     }
 
     bool ParallelDelta::cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position) {
@@ -147,23 +136,21 @@ namespace Kinematics {
         float segment_dist = dist / ((float)segment_count);  // distance of each segment...will be used for feedrate conversion
 
         for (uint32_t segment = 1; segment <= segment_count; segment++) {
+            log_debug("Segment:" << segment << " of " << segment_count);
             // determine this segment's target
             seg_target[X_AXIS] = position[X_AXIS] + (dx / float(segment_count) * segment);
             seg_target[Y_AXIS] = position[Y_AXIS] + (dy / float(segment_count) * segment);
             seg_target[Z_AXIS] = position[Z_AXIS] + (dz / float(segment_count) * segment);
+
+            log_debug("Segment target (" << seg_target[0] << "," << seg_target[1] << "," << seg_target[2] << ")");
 
             // calculate the delta motor angles
             KinematicError status = delta_calcInverse(seg_target, motor_angles);
 
             if (status != KinematicError ::NONE) {
                 if (show_error) {
-                    // grbl_msg_sendf(CLIENT_SERIAL,
-                    //                MsgLevel::Info,
-                    //                "Error:%d, Angs X:%4.3f Y:%4.3f Z:%4.3f",
-                    //                status,
-                    //                motor_angles[0],
-                    //                motor_angles[1],
-                    //                motor_angles[2]);
+                    log_error("Kinematic error:" << (int)status << " motors (" << motor_angles[0] << "," << motor_angles[1] << ","
+                                                 << motor_angles[2] << ")");
                     show_error = false;
                 }
                 return false;
@@ -190,7 +177,7 @@ namespace Kinematics {
     }
 
     void ParallelDelta::motors_to_cartesian(float* cartesian, float* motors, int n_axis) {
-        log_debug("motors_to_cartesian motors: (" << motors[0] << "," << motors[1] << "," << motors[2] << ")");
+        //log_debug("motors_to_cartesian motors: (" << motors[0] << "," << motors[1] << "," << motors[2] << ")");
         //log_info("motors_to_cartesian rf:" << rf << " re:" << re << " f:" << f << " e:" << e);
 
         float t = (f - e) * tan30 / 2;
@@ -249,18 +236,40 @@ namespace Kinematics {
             return KinematicError::OUT_OF_RANGE;          // non-existing point
         float yj = (y1 - a * b - sqrt(d)) / (b * b + 1);  // choosing outer point
         float zj = a + b * yj;
-        //theta    = 180.0 * atan(-zj / (y1 - yj)) / M_PI + ((yj > y1) ? 180.0 : 0.0);
+
         theta = atan(-zj / (y1 - yj)) + ((yj > y1) ? M_PI : 0.0);
 
-        if (theta < _max_negative_angle) {
-            return KinematicError::ANGLE_TOO_NEGATIVE;
-        }
-
-        if (theta > _max_negative_angle) {
-            return KinematicError::ANGLE_TOO_POSITIVE;
-        }
-
         return KinematicError::NONE;
+    }
+
+    bool ParallelDelta::transform_cartesian_to_motors(float* motors, float* cartesian) {
+        motors[0] = motors[1] = motors[2] = 0;
+        KinematicError status             = KinematicError::NONE;
+
+        status = delta_calcAngleYZ(cartesian[X_AXIS], cartesian[Y_AXIS], cartesian[Z_AXIS], motors[0]);
+        if (status != KinematicError ::NONE) {
+            return false;
+        }
+
+        status = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 + cartesian[Y_AXIS] * sin120,
+                                   cartesian[Y_AXIS] * cos120 - cartesian[X_AXIS] * sin120,
+                                   cartesian[Z_AXIS],
+                                   motors[1]);  // rotate coords to +120 deg
+        if (status != KinematicError ::NONE) {
+            return false;
+        }
+
+        status = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 - cartesian[Y_AXIS] * sin120,
+                                   cartesian[Y_AXIS] * cos120 + cartesian[X_AXIS] * sin120,
+                                   cartesian[Z_AXIS],
+                                   motors[2]);  // rotate coords to -120 deg
+        if (status != KinematicError ::NONE) {
+            return false;
+        }
+
+        log_debug("transform_cartesian_to_motors: (" << cartesian[0] << "," << cartesian[1] << "," << cartesian[2] << ") to (" << motors[0]
+                                                     << "," << motors[1] << "," << motors[2] << ")");
+        return true;
     }
 
     // inverse kinematics: cartesian -> angles
@@ -270,27 +279,17 @@ namespace Kinematics {
         KinematicError status             = KinematicError::NONE;
 
         status = delta_calcAngleYZ(cartesian[X_AXIS], cartesian[Y_AXIS], cartesian[Z_AXIS], angles[0]);
-        if (status != KinematicError ::NONE) {
-            return status;
-        }
 
         status = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 + cartesian[Y_AXIS] * sin120,
                                    cartesian[Y_AXIS] * cos120 - cartesian[X_AXIS] * sin120,
                                    cartesian[Z_AXIS],
-                                   angles[1]);  // rotate coords to +120 deg
-        if (status != KinematicError ::NONE) {
-            return status;
-        }
+                                   angles[1]);
 
         status = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 - cartesian[Y_AXIS] * sin120,
                                    cartesian[Y_AXIS] * cos120 + cartesian[X_AXIS] * sin120,
                                    cartesian[Z_AXIS],
-                                   angles[2]);  // rotate coords to -120 deg
-        if (status != KinematicError ::NONE) {
-            return status;
-        }
+                                   angles[2]);
 
-        //grbl_msg_sendf(CLIENT_SERIAL, MsgLevel::Info, "xyx (%4.3f,%4.3f,%4.3f) ang (%4.3f,%4.3f,%4.3f)", x0, y0, z0, theta1, theta2, theta3);
         return status;
     }
 
