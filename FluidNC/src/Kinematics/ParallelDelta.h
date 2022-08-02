@@ -23,12 +23,12 @@
 #define DXL_CENTER 2015          // (DXL_COUNTS / 2) - (ARM_INTERNAL_ANGLE * DXL_COUNT_PER_RADIAN)
 
 namespace Kinematics {
-    enum class KinematicError : uint8_t {
-        NONE               = 0,
-        OUT_OF_RANGE       = 1,
-        ANGLE_TOO_NEGATIVE = 2,
-        ANGLE_TOO_POSITIVE = 3,
-    };
+    // enum class KinematicError : uint8_t {
+    //     NONE               = 0,
+    //     OUT_OF_RANGE       = 1,
+    //     ANGLE_TOO_NEGATIVE = 2,
+    //     ANGLE_TOO_POSITIVE = 3,
+    // };
     class ParallelDelta : public Cartesian {
     public:
         ParallelDelta() = default;
@@ -68,8 +68,8 @@ namespace Kinematics {
         float _kinematic_segment_len_mm = 1.0;  // the maximun segment length the move is broken into
         bool  _softLimits               = false;
 
-        KinematicError delta_calcAngleYZ(float x0, float y0, float z0, float& theta);
-        KinematicError delta_calcInverse(float* cartesian, float* angles);
+        bool delta_calcAngleYZ(float x0, float y0, float z0, float& theta);
+        bool delta_calcInverse(float* cartesian, float* angles);
         float          three_axis_dist(float* point1, float* point2);
 
     protected:

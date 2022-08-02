@@ -35,6 +35,8 @@ namespace Kinematics {
     bool Cartesian::soft_limit_error_exists(float* cartesian) {
         bool limit_error = false;
 
+        
+
         for (int axis = 0; axis < config->_axes->_numberAxis; axis++) {
             if (config->_axes->_axis[axis]->_softLimits &&
                 (cartesian[axis] < limitsMinPosition(axis) || cartesian[axis] > limitsMaxPosition(axis))) {
@@ -43,7 +45,7 @@ namespace Kinematics {
                 limit_error = true;
             }
         }
-        return !limit_error;
+        return limit_error;
     }
 
     // Configuration registration

@@ -178,7 +178,7 @@ namespace Kinematics {
     }
 
     bool WallPlotter::soft_limit_error_exists(float* cartesian) {
-        return true;
+        return false;
     }
 
     void WallPlotter::xy_to_lengths(float x, float y, float& left_length, float& right_length) {

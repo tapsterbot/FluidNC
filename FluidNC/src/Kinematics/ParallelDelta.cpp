@@ -101,19 +101,19 @@ namespace Kinematics {
         float feed_rate  = pl_data->feed_rate;  // save original feed rate
         bool  show_error = true;                // shows error once
 
-        KinematicError status;
+        bool calc_ok = true;
 
         log_info("Target (" << target[0] << "," << target[1] << "," << target[2]);
 
-        status = delta_calcInverse(position, last_angle);
-        if (status == KinematicError::OUT_OF_RANGE) {
+        calc_ok = delta_calcInverse(position, last_angle);
+        if (!calc_ok) {
             log_warn("Kinematics error. Start position error (" << position[0] << "," << position[1] << "," << position[2] << ")");
             return false;
         }
 
         // Check the destination to see if it is in work area
-        status = delta_calcInverse(target, motor_angles);
-        if (status == KinematicError::OUT_OF_RANGE) {
+        calc_ok = delta_calcInverse(target, motor_angles);
+        if (!calc_ok) {
             log_warn("Kinematics error. Target unreachable (" << target[0] << "," << target[1] << "," << target[2] << ")");
             return false;
         }
@@ -143,12 +143,11 @@ namespace Kinematics {
             log_debug("Segment target (" << seg_target[0] << "," << seg_target[1] << "," << seg_target[2] << ")");
 
             // calculate the delta motor angles
-            KinematicError status = delta_calcInverse(seg_target, motor_angles);
+            bool calc_ok = delta_calcInverse(seg_target, motor_angles);
 
-            if (status != KinematicError ::NONE) {
+            if (!calc_ok) {
                 if (show_error) {
-                    log_error("Kinematic error:" << (int)status << " motors (" << motor_angles[0] << "," << motor_angles[1] << ","
-                                                 << motor_angles[2] << ")");
+                    log_error("Kinematic error motors (" << motor_angles[0] << "," << motor_angles[1] << "," << motor_angles[2] << ")");
                     show_error = false;
                 }
                 return false;
@@ -222,7 +221,7 @@ namespace Kinematics {
     }
 
     // helper functions, calculates angle theta1 (for YZ-pane)
-    KinematicError ParallelDelta::delta_calcAngleYZ(float x0, float y0, float z0, float& theta) {
+    bool ParallelDelta::delta_calcAngleYZ(float x0, float y0, float z0, float& theta) {
         float y1 = -0.5 * 0.57735 * f;  // f/2 * tg 30
         y0 -= 0.5 * 0.57735 * e;        // shift center to edge
         // z = a + b*y
@@ -231,38 +230,38 @@ namespace Kinematics {
         // discriminant
         float d = -(a + b * y1) * (a + b * y1) + rf * (b * b * rf + rf);
         if (d < 0)
-            return KinematicError::OUT_OF_RANGE;          // non-existing point
+            return false;                                 // non-existing point
         float yj = (y1 - a * b - sqrt(d)) / (b * b + 1);  // choosing outer point
         float zj = a + b * yj;
 
         theta = atan(-zj / (y1 - yj)) + ((yj > y1) ? M_PI : 0.0);
 
-        return KinematicError::NONE;
+        return true;
     }
 
     bool ParallelDelta::transform_cartesian_to_motors(float* motors, float* cartesian) {
         motors[0] = motors[1] = motors[2] = 0;
-        KinematicError status             = KinematicError::NONE;
+        bool calc_ok                      = false;
 
-        status = delta_calcAngleYZ(cartesian[X_AXIS], cartesian[Y_AXIS], cartesian[Z_AXIS], motors[0]);
-        if (status != KinematicError ::NONE) {
-            return false;
+        calc_ok = delta_calcAngleYZ(cartesian[X_AXIS], cartesian[Y_AXIS], cartesian[Z_AXIS], motors[0]);
+        if (!calc_ok) {
+            return calc_ok;
         }
 
-        status = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 + cartesian[Y_AXIS] * sin120,
-                                   cartesian[Y_AXIS] * cos120 - cartesian[X_AXIS] * sin120,
-                                   cartesian[Z_AXIS],
-                                   motors[1]);  // rotate coords to +120 deg
-        if (status != KinematicError ::NONE) {
-            return false;
+        calc_ok = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 + cartesian[Y_AXIS] * sin120,
+                                    cartesian[Y_AXIS] * cos120 - cartesian[X_AXIS] * sin120,
+                                    cartesian[Z_AXIS],
+                                    motors[1]);  // rotate coords to +120 deg
+        if (!calc_ok) {
+            return calc_ok;
         }
 
-        status = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 - cartesian[Y_AXIS] * sin120,
-                                   cartesian[Y_AXIS] * cos120 + cartesian[X_AXIS] * sin120,
-                                   cartesian[Z_AXIS],
-                                   motors[2]);  // rotate coords to -120 deg
-        if (status != KinematicError ::NONE) {
-            return false;
+        calc_ok = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 - cartesian[Y_AXIS] * sin120,
+                                    cartesian[Y_AXIS] * cos120 + cartesian[X_AXIS] * sin120,
+                                    cartesian[Z_AXIS],
+                                    motors[2]);  // rotate coords to -120 deg
+        if (!calc_ok) {
+            return calc_ok;
         }
 
         log_debug("transform_cartesian_to_motors: (" << cartesian[0] << "," << cartesian[1] << "," << cartesian[2] << ") to (" << motors[0]
@@ -273,32 +272,42 @@ namespace Kinematics {
     // checks to see if the target is reachable
     bool ParallelDelta::soft_limit_error_exists(float* cartesian) {
         float motors[MAX_N_AXIS];
+        bool  calc_ok     = true;
+        bool  limit_error = false;
 
         if (!_softLimits)
-            return false;
+            limit_error = false;
 
-        return transform_cartesian_to_motors(motors, cartesian);
+        calc_ok = transform_cartesian_to_motors(motors, cartesian);
+        if (!calc_ok)
+            limit_error = true;
+
+        return limit_error;
     }
 
     // inverse kinematics: cartesian -> angles
     // returned status: 0=OK, -1=non-existing position
-    KinematicError ParallelDelta::delta_calcInverse(float* cartesian, float* angles) {
+    bool ParallelDelta::delta_calcInverse(float* cartesian, float* angles) {
         angles[0] = angles[1] = angles[2] = 0;
-        KinematicError status             = KinematicError::NONE;
+        bool calc_error                   = false;
 
-        status = delta_calcAngleYZ(cartesian[X_AXIS], cartesian[Y_AXIS], cartesian[Z_AXIS], angles[0]);
+        calc_error = delta_calcAngleYZ(cartesian[X_AXIS], cartesian[Y_AXIS], cartesian[Z_AXIS], angles[0]);
+        if (!calc_error)
+            return calc_error;
 
-        status = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 + cartesian[Y_AXIS] * sin120,
-                                   cartesian[Y_AXIS] * cos120 - cartesian[X_AXIS] * sin120,
-                                   cartesian[Z_AXIS],
-                                   angles[1]);
+        calc_error = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 + cartesian[Y_AXIS] * sin120,
+                                       cartesian[Y_AXIS] * cos120 - cartesian[X_AXIS] * sin120,
+                                       cartesian[Z_AXIS],
+                                       angles[1]);
+        if (!calc_error)
+            return calc_error;
 
-        status = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 - cartesian[Y_AXIS] * sin120,
-                                   cartesian[Y_AXIS] * cos120 + cartesian[X_AXIS] * sin120,
-                                   cartesian[Z_AXIS],
-                                   angles[2]);
+        calc_error = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 - cartesian[Y_AXIS] * sin120,
+                                       cartesian[Y_AXIS] * cos120 + cartesian[X_AXIS] * sin120,
+                                       cartesian[Z_AXIS],
+                                       angles[2]);
 
-        return status;
+        return calc_error;
     }
 
     // Determine the unit distance between (2) 3D points
