@@ -88,9 +88,6 @@ namespace Kinematics {
         // print a startup message to show the kinematics are enabled. Print the offset for reference
         log_info("Kinematic system: " << name());
         log_info("  Z Offset:" << cartesian[Z_AXIS]);
-
-        //plan_line_data_t plan_data;
-        //delta_calcInverse(cartesian, angles);
     }
 
     bool ParallelDelta::cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position) {
@@ -105,14 +102,14 @@ namespace Kinematics {
 
         log_info("Target (" << target[0] << "," << target[1] << "," << target[2]);
 
-        calc_ok = delta_calcInverse(position, last_angle);
+        calc_ok = transform_cartesian_to_motors(last_angle, position);
         if (!calc_ok) {
             log_warn("Kinematics error. Start position error (" << position[0] << "," << position[1] << "," << position[2] << ")");
             return false;
         }
 
         // Check the destination to see if it is in work area
-        calc_ok = delta_calcInverse(target, motor_angles);
+        calc_ok = transform_cartesian_to_motors(motor_angles, target);
         if (!calc_ok) {
             log_warn("Kinematics error. Target unreachable (" << target[0] << "," << target[1] << "," << target[2] << ")");
             return false;
@@ -143,7 +140,7 @@ namespace Kinematics {
             log_debug("Segment target (" << seg_target[0] << "," << seg_target[1] << "," << seg_target[2] << ")");
 
             // calculate the delta motor angles
-            bool calc_ok = delta_calcInverse(seg_target, motor_angles);
+            bool calc_ok = transform_cartesian_to_motors(motor_angles, seg_target);
 
             if (!calc_ok) {
                 if (show_error) {
@@ -239,6 +236,18 @@ namespace Kinematics {
         return true;
     }
 
+    // checks to see if the target is reachable
+    bool ParallelDelta::soft_limit_error_exists(float* cartesian) {
+        float motors[MAX_N_AXIS];
+        bool  calc_ok     = true;
+        bool  limit_error = false;
+
+        if (!_softLimits)
+            limit_error = false;
+
+        return !transform_cartesian_to_motors(motors, cartesian);
+    }
+
     bool ParallelDelta::transform_cartesian_to_motors(float* motors, float* cartesian) {
         motors[0] = motors[1] = motors[2] = 0;
         bool calc_ok                      = false;
@@ -260,55 +269,34 @@ namespace Kinematics {
                                     cartesian[Y_AXIS] * cos120 + cartesian[X_AXIS] * sin120,
                                     cartesian[Z_AXIS],
                                     motors[2]);  // rotate coords to -120 deg
-        if (!calc_ok) {
-            return calc_ok;
-        }
 
-        log_debug("transform_cartesian_to_motors: (" << cartesian[0] << "," << cartesian[1] << "," << cartesian[2] << ") to (" << motors[0]
-                                                     << "," << motors[1] << "," << motors[2] << ")");
-        return true;
-    }
-
-    // checks to see if the target is reachable
-    bool ParallelDelta::soft_limit_error_exists(float* cartesian) {
-        float motors[MAX_N_AXIS];
-        bool  calc_ok     = true;
-        bool  limit_error = false;
-
-        if (!_softLimits)
-            limit_error = false;
-
-        calc_ok = transform_cartesian_to_motors(motors, cartesian);
-        if (!calc_ok)
-            limit_error = true;
-
-        return limit_error;
+        return calc_ok;
     }
 
     // inverse kinematics: cartesian -> angles
     // returned status: 0=OK, -1=non-existing position
-    bool ParallelDelta::delta_calcInverse(float* cartesian, float* angles) {
-        angles[0] = angles[1] = angles[2] = 0;
-        bool calc_error                   = false;
+    // bool ParallelDelta::delta_calcInverse(float* motors, float* cartesian) {
+    //     motors[0] = motors[1] = motors[2] = 0;
+    //     bool calc_ok                      = false;
 
-        calc_error = delta_calcAngleYZ(cartesian[X_AXIS], cartesian[Y_AXIS], cartesian[Z_AXIS], angles[0]);
-        if (!calc_error)
-            return calc_error;
+    //     calc_ok = delta_calcAngleYZ(cartesian[X_AXIS], cartesian[Y_AXIS], cartesian[Z_AXIS], motors[0]);
+    //     if (!calc_ok)
+    //         return calc_ok;
 
-        calc_error = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 + cartesian[Y_AXIS] * sin120,
-                                       cartesian[Y_AXIS] * cos120 - cartesian[X_AXIS] * sin120,
-                                       cartesian[Z_AXIS],
-                                       angles[1]);
-        if (!calc_error)
-            return calc_error;
+    //     calc_ok = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 + cartesian[Y_AXIS] * sin120,
+    //                                 cartesian[Y_AXIS] * cos120 - cartesian[X_AXIS] * sin120,
+    //                                 cartesian[Z_AXIS],
+    //                                 motors[1]);
+    //     if (!calc_ok)
+    //         return calc_ok;
 
-        calc_error = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 - cartesian[Y_AXIS] * sin120,
-                                       cartesian[Y_AXIS] * cos120 + cartesian[X_AXIS] * sin120,
-                                       cartesian[Z_AXIS],
-                                       angles[2]);
+    //     calc_ok = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 - cartesian[Y_AXIS] * sin120,
+    //                                 cartesian[Y_AXIS] * cos120 + cartesian[X_AXIS] * sin120,
+    //                                 cartesian[Z_AXIS],
+    //                                 motors[2]);
 
-        return calc_error;
-    }
+    //     return calc_ok;
+    // }
 
     // Determine the unit distance between (2) 3D points
     float ParallelDelta::three_axis_dist(float* point1, float* point2) {
