@@ -73,8 +73,8 @@ namespace Kinematics {
         handler.item("base_triangle_mm", f, 20.0, 500.0);
         handler.item("linkage_mm", re, 20.0, 500.0);
         handler.item("end_effector_triangle_mm", e, 20.0, 500.0);
-
         handler.item("kinematic_segment_len_mm", _kinematic_segment_len_mm, 0.05, 20.0);  //
+        handler.item("soft_limits", _softLimits);
     }
 
     void ParallelDelta::init() {
@@ -89,10 +89,8 @@ namespace Kinematics {
         log_info("Kinematic system: " << name());
         log_info("  Z Offset:" << cartesian[Z_AXIS]);
 
-        
-
         //plan_line_data_t plan_data;
-        //delta_calcInverse(cartesian, angles);        
+        //delta_calcInverse(cartesian, angles);
     }
 
     bool ParallelDelta::cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position) {
@@ -270,6 +268,16 @@ namespace Kinematics {
         log_debug("transform_cartesian_to_motors: (" << cartesian[0] << "," << cartesian[1] << "," << cartesian[2] << ") to (" << motors[0]
                                                      << "," << motors[1] << "," << motors[2] << ")");
         return true;
+    }
+
+    // checks to see if the target is reachable
+    bool ParallelDelta::soft_limit_error_exists(float* cartesian) {
+        float motors[MAX_N_AXIS];
+
+        if (!_softLimits)
+            return false;
+
+        return transform_cartesian_to_motors(motors, cartesian);
     }
 
     // inverse kinematics: cartesian -> angles

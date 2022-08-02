@@ -77,20 +77,7 @@ void constrainToSoftLimits(float* cartesian) {
 // the workspace volume is in all negative space, and the system is in normal operation.
 // NOTE: Used by jogging to limit travel within soft-limit volume.
 void limits_soft_check(float* cartesian) {
-    bool limit_error = false;
-
-    auto axes   = config->_axes;
-    auto n_axis = config->_axes->_numberAxis;
-
-    for (int axis = 0; axis < n_axis; axis++) {
-        if (axes->_axis[axis]->_softLimits && (cartesian[axis] < limitsMinPosition(axis) || cartesian[axis] > limitsMaxPosition(axis))) {
-            String axis_letter = String(Machine::Axes::_names[axis]);
-            log_info("Soft limit on " << axis_letter << " target:" << cartesian[axis]);
-            limit_error = true;
-        }
-    }
-
-    if (limit_error) {
+    if (config->_kinematics->soft_limit_error_exists(cartesian)) {
         soft_limit = true;
         // Force feed hold if cycle is active. All buffered blocks are guaranteed to be within
         // workspace volume so just come to a controlled stop so position is not lost. When complete

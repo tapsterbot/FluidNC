@@ -29,6 +29,21 @@ namespace Kinematics {
     bool Cartesian::transform_cartesian_to_motors(float* motors, float* cartesian) {
         // Motor space is cartesian space, so we do no transform.
         copyAxes(motors, cartesian);
+        return true;
+    }
+
+    bool Cartesian::soft_limit_error_exists(float* cartesian) {
+        bool limit_error = false;
+
+        for (int axis = 0; axis < config->_axes->_numberAxis; axis++) {
+            if (config->_axes->_axis[axis]->_softLimits &&
+                (cartesian[axis] < limitsMinPosition(axis) || cartesian[axis] > limitsMaxPosition(axis))) {
+                String axis_letter = String(Machine::Axes::_names[axis]);
+                log_info("Soft limit on " << axis_letter << " target:" << cartesian[axis]);
+                limit_error = true;
+            }
+        }
+        return !limit_error;
     }
 
     // Configuration registration

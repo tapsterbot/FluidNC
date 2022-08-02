@@ -16,10 +16,10 @@ namespace Kinematics {
     public:
         WallPlotter() = default;
 
-        WallPlotter(const WallPlotter&) = delete;
-        WallPlotter(WallPlotter&&)      = delete;
+        WallPlotter(const WallPlotter&)            = delete;
+        WallPlotter(WallPlotter&&)                 = delete;
         WallPlotter& operator=(const WallPlotter&) = delete;
-        WallPlotter& operator=(WallPlotter&&) = delete;
+        WallPlotter& operator=(WallPlotter&&)      = delete;
 
         // Kinematic Interface
 
@@ -29,6 +29,7 @@ namespace Kinematics {
         bool cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position) override;
         void motors_to_cartesian(float* cartesian, float* motors, int n_axis) override;
         bool transform_cartesian_to_motors(float* motors, float* cartesian) override;
+        bool soft_limit_error_exists(float* cartesian) override;
 
         // Configuration handlers:
         void validate() const override {}
