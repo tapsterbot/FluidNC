@@ -14,6 +14,8 @@ kinematics:
     base_triangle_mm: 179.437
     linkage_mm: 133.50
     end_effector_triangle_mm: 86.603
+    kinematic_segment_len_mm: 1.000
+    soft_limits: true
 
 start:
   must_home: false
