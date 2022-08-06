@@ -29,7 +29,9 @@ namespace MotorDrivers {
         TrinamicBase::config_motor();
     }
 
-    bool TMC5160Driver::test() { return TrinamicBase::reportTest(tmc5160->test_connection()); }
+    bool TMC5160Driver::test() {
+        return TrinamicBase::reportTest(tmc5160->test_connection());
+    }
 
     void TMC5160Driver::set_registers(bool isHoming) {
         if (_has_errors) {
@@ -49,6 +51,9 @@ namespace MotorDrivers {
         tmc5160->microsteps(usteps);
 
         tmc5160->tpfd(_tpfd);
+        tmc5160->diag0_error(true);  // enable active on error
+        tmc5160->diag0_otpw(true);   // over temp warning
+        tmc5160->diag0_int_pushpull(false); // push pull vs. open collector
 
         switch (_mode) {
             case TrinamicMode ::StealthChop:

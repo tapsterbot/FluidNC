@@ -25,6 +25,10 @@ namespace MotorDrivers {
         void group(Configuration::HandlerBase& handler) override {
             TrinamicSpiDriver::group(handler);
             handler.item("tpfd", _tpfd, 0, 15);
+
+            handler.item("output_errors", _diag0_error);
+            handler.item("overtemp_warning", _otpw);
+            handler.item("diag0_int_pushpull", _diag0_push_pull);
         }
 
         // Name of the configurable. Must match the name registered in the cpp file.
@@ -33,7 +37,10 @@ namespace MotorDrivers {
     private:
         TMC5160Stepper* tmc5160 = nullptr;
 
-        uint8_t _tpfd = 4;
+        uint8_t _tpfd            = 4;
+        bool    _diag0_error     = false;  // enable errors on diag0
+        bool    _otpw            = false;  // overtemp warning
+        bool    _diag0_push_pull = false;  // diag0 is pull pull vs open collector
 
         bool test();
         void set_registers(bool isHoming);
