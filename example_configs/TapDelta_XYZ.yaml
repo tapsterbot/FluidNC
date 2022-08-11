@@ -1,9 +1,9 @@
 board: Tap Delta
-name: Tap Delta Dynamixel XYZ
+name: Tapster3
 meta:
 stepping:
   engine: RMT
-  idle_ms: 2000
+  idle_ms: 255
   pulse_us: 4
   dir_delay_us: 1
   disable_delay_us: 0
@@ -34,7 +34,8 @@ axes:
     homing:
       cycle: 1
       positive_direction: false
-      mpos_mm: -1.047
+      mpos_mm: 0.000
+      #mpos_mm: -1.047
       feed_mm_per_min: 100.000
       seek_mm_per_min: 200.000
       settle_ms: 500
@@ -67,7 +68,8 @@ axes:
     homing:
       cycle: 1
       positive_direction: false
-      mpos_mm: -1.047
+      mpos_mm: 0.000
+      #mpos_mm: -1.047
       feed_mm_per_min: 100.000
       seek_mm_per_min: 200.000
       settle_ms: 500
@@ -94,7 +96,8 @@ axes:
     homing:
       cycle: 1
       positive_direction: false
-      mpos_mm: -1.047
+      mpos_mm: 0.000
+       #mpos_mm: -1.047
       feed_mm_per_min: 100.000
       seek_mm_per_min: 200.000
       settle_ms: 500
