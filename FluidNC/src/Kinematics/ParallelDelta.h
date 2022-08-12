@@ -40,7 +40,7 @@ namespace Kinematics {
 
         // Kinematic Interface
         virtual void init() override;
-        // bool         kinematics_homing(AxisMask cycle_mask) override;
+        bool         kinematics_homing(AxisMask cycle_mask) override;
         // void         kinematics_post_homing() override;
         bool cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position) override;
         void motors_to_cartesian(float* cartesian, float* motors, int n_axis) override;
@@ -60,15 +60,16 @@ namespace Kinematics {
     private:
         //  Config items Using geometry names from the published kinematics rather than typical Fluid Style
         // To make the math easier to compare with the code
-        float rf;  // The length of the crank arm on the motor
-        float f;
-        float re;
-        float e;
+        float rf = 70.0;  // The length of the crank arm on the motor
+        float f  = 179.437;
+        float re = 133.50;
+        float e  = 86.603;
 
         float _kinematic_segment_len_mm = 1.0;  // the maximun segment length the move is broken into
         bool  _softLimits               = false;
+        float _homing_mpos              = 0.0;
 
-        bool  delta_calcAngleYZ(float x0, float y0, float z0, float& theta);
+        bool delta_calcAngleYZ(float x0, float y0, float z0, float& theta);
         //bool  delta_calcInverse(float* motors, float* cartesian);
         float three_axis_dist(float* point1, float* point2);
 

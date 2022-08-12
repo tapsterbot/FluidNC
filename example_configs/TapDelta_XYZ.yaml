@@ -3,7 +3,7 @@ name: Tapster3
 meta:
 stepping:
   engine: RMT
-  idle_ms: 255
+  idle_ms: 2000
   pulse_us: 4
   dir_delay_us: 1
   disable_delay_us: 0
@@ -15,6 +15,7 @@ kinematics:
     linkage_mm: 133.50
     end_effector_triangle_mm: 86.603
     kinematic_segment_len_mm: 1.000
+    homing_mpos_radians: 0.0
     soft_limits: true
 
 start:
@@ -34,8 +35,7 @@ axes:
     homing:
       cycle: 1
       positive_direction: false
-      mpos_mm: 0.000
-      #mpos_mm: -1.047
+      mpos_mm: -1.047
       feed_mm_per_min: 100.000
       seek_mm_per_min: 200.000
       settle_ms: 500
@@ -68,8 +68,7 @@ axes:
     homing:
       cycle: 1
       positive_direction: false
-      mpos_mm: 0.000
-      #mpos_mm: -1.047
+      mpos_mm: -1.047
       feed_mm_per_min: 100.000
       seek_mm_per_min: 200.000
       settle_ms: 500
@@ -96,8 +95,7 @@ axes:
     homing:
       cycle: 1
       positive_direction: false
-      mpos_mm: 0.000
-       #mpos_mm: -1.047
+      mpos_mm: -1.047
       feed_mm_per_min: 100.000
       seek_mm_per_min: 200.000
       settle_ms: 500
@@ -123,3 +121,4 @@ spi:
 sdcard:
   card_detect_pin: NO_PIN
   cs_pin: gpio.5
+  

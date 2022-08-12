@@ -303,7 +303,7 @@ namespace MotorDrivers {
         dxl_position = static_cast<uint32_t>(mapConstrain(
             motors[_axis_index], limitsMinPosition(_axis_index), limitsMaxPosition(_axis_index), dxl_count_min, dxl_count_max));
 
-        log_debug("dxl:" << _id << " pos:" << dxl_position);
+        log_debug("dxl:" << _id << " mpos:" << motors[_axis_index] << " dxl:" << dxl_position);
 
         bulk_message[++bulk_message_index] = _id;                                // ID of the servo
         bulk_message[++bulk_message_index] = dxl_position & 0xFF;                // data

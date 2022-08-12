@@ -74,6 +74,7 @@ namespace Kinematics {
         handler.item("linkage_mm", re, 20.0, 500.0);
         handler.item("end_effector_triangle_mm", e, 20.0, 500.0);
         handler.item("kinematic_segment_len_mm", _kinematic_segment_len_mm, 0.05, 20.0);  //
+        handler.item("homing_mpos_radians", _homing_mpos);
         handler.item("soft_limits", _softLimits);
     }
 
@@ -88,6 +89,24 @@ namespace Kinematics {
         // print a startup message to show the kinematics are enabled. Print the offset for reference
         log_info("Kinematic system: " << name());
         log_info("  Z Offset:" << cartesian[Z_AXIS]);
+    }
+
+    bool ParallelDelta::kinematics_homing(AxisMask cycle_mask) {
+        auto axes   = config->_axes;
+        auto n_axis = axes->_numberAxis;
+
+        log_info("kinematics_homing");
+        config->_axes->set_disable(false);
+
+        // TODO deal with non kinematic axes above Z
+        for (int axis = 0; axis < 3; axis++) {
+            //set_motor_steps(axis, mpos_to_steps(axes->_axis[axis]->_homing->_mpos, axis));
+            int32_t steps = mpos_to_steps(_homing_mpos, axis);
+            set_motor_steps(axis, steps);
+            log_info("kinematics_homing. axis:" << axis << " steps:" << steps);
+        }
+        protocol_disable_steppers();
+        return true;  // signal main code that this handled all homing
     }
 
     bool ParallelDelta::cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position) {

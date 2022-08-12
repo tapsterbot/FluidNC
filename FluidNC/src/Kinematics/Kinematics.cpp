@@ -8,7 +8,7 @@
 #include "Cartesian.h"
 
 namespace Kinematics {
-    bool Kinematics::kinematics_homing(AxisMask cycle_mask) {
+    bool Kinematics::kinematics_homing(AxisMask cycle_mask) { // return true if kinematics replaces homing in main code.
         Assert(_system != nullptr, "No kinematic system");
         return _system->kinematics_homing(cycle_mask);
     }
