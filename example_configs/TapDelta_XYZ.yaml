@@ -3,7 +3,7 @@ name: Tapster3
 meta:
 stepping:
   engine: RMT
-  idle_ms: 2000
+  idle_ms: 255
   pulse_us: 4
   dir_delay_us: 1
   disable_delay_us: 0
@@ -14,7 +14,7 @@ kinematics:
     base_triangle_mm: 179.437
     linkage_mm: 133.50
     end_effector_triangle_mm: 86.603
-    kinematic_segment_len_mm: 1.000
+    kinematic_segment_len_mm: 0.500
     homing_mpos_radians: 0.0
     soft_limits: true
 
@@ -27,15 +27,15 @@ axes:
   shared_stepper_disable_pin: NO_PIN
   x:
     steps_per_mm: 100.000
-    max_rate_mm_per_min: 5000.000
-    acceleration_mm_per_sec2: 50.000
+    max_rate_mm_per_min: 2000
+    acceleration_mm_per_sec2: 200.000
     # pi/2 + pi/3
     max_travel_mm: 2.618
     soft_limits: false
     homing:
       cycle: 1
       positive_direction: false
-      mpos_mm: -1.047
+      mpos_mm: 0.0
       feed_mm_per_min: 100.000
       seek_mm_per_min: 200.000
       settle_ms: 500
@@ -56,19 +56,20 @@ axes:
           rts_pin: gpio.17
           baud: 1000000
           mode: 8N1
-        count_min: 1366
+        count_min: 2048
         count_max: 3072
+        timer_ms: 40
 
   y:
     steps_per_mm: 100.000
-    max_rate_mm_per_min: 5000.000
-    acceleration_mm_per_sec2: 50.000
+    max_rate_mm_per_min: 2000
+    acceleration_mm_per_sec2: 200.000
     max_travel_mm: 2.618
     soft_limits: false
     homing:
       cycle: 1
       positive_direction: false
-      mpos_mm: -1.047
+      mpos_mm: 0.0
       feed_mm_per_min: 100.000
       seek_mm_per_min: 200.000
       settle_ms: 500
@@ -83,19 +84,19 @@ axes:
       pulloff_mm: 1.000
       dynamixel2:
         id: 2
-        count_min: 1366
+        count_min: 2048
         count_max: 3072
-        
+        timer_ms: 40
   z:
     steps_per_mm: 100.000
-    max_rate_mm_per_min: 5000.000
-    acceleration_mm_per_sec2: 50.000
+    max_rate_mm_per_min: 2000
+    acceleration_mm_per_sec2: 200.000
     max_travel_mm: 2.618
     soft_limits: false
     homing:
       cycle: 1
       positive_direction: false
-      mpos_mm: -1.047
+      mpos_mm: 0.0
       feed_mm_per_min: 100.000
       seek_mm_per_min: 200.000
       settle_ms: 500
@@ -110,8 +111,9 @@ axes:
       pulloff_mm: 1.000
       dynamixel2:
         id: 3
-        count_min: 1366
+        count_min: 2048
         count_max: 3072
+        timer_ms: 40
 
 spi:
   miso_pin: gpio.19

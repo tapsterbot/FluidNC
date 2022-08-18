@@ -95,7 +95,7 @@ namespace Kinematics {
         auto axes   = config->_axes;
         auto n_axis = axes->_numberAxis;
 
-        log_info("kinematics_homing");
+        log_debug("kinematics_homing");
         config->_axes->set_disable(false);
 
         // TODO deal with non kinematic axes above Z
@@ -103,7 +103,6 @@ namespace Kinematics {
             //set_motor_steps(axis, mpos_to_steps(axes->_axis[axis]->_homing->_mpos, axis));
             int32_t steps = mpos_to_steps(_homing_mpos, axis);
             set_motor_steps(axis, steps);
-            log_info("kinematics_homing. axis:" << axis << " steps:" << steps);
         }
         protocol_disable_steppers();
         return true;  // signal main code that this handled all homing
@@ -119,7 +118,7 @@ namespace Kinematics {
 
         bool calc_ok = true;
 
-        log_info("Target (" << target[0] << "," << target[1] << "," << target[2]);
+        //log_debug("Target (" << target[0] << "," << target[1] << "," << target[2]);
 
         calc_ok = transform_cartesian_to_motors(last_angle, position);
         if (!calc_ok) {

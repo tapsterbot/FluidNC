@@ -32,6 +32,7 @@ namespace MotorDrivers {
         void     dxl_goal_position(int32_t position);  // set one motor
         void     set_operating_mode(uint8_t mode);
         void     LED_on(bool on);
+        
 
         static void     dxl_finish_message(uint8_t id, uint8_t* msg, uint16_t msg_len);
         static uint16_t dxl_get_response(uint16_t length);
@@ -100,6 +101,7 @@ namespace MotorDrivers {
         bool set_homing_mode(bool isHoming) override;
         void set_disable(bool disable) override;
         void update() override;
+        void config_motor() override;
 
         // Configuration handlers:
         void validate() const override {
@@ -113,6 +115,7 @@ namespace MotorDrivers {
 
             handler.item("count_min", _countMin);
             handler.item("count_max", _countMax);
+            handler.item("timer_ms", _timer_ms);
 
             if (_uart == nullptr) {
                 // If _uart is null this must be the parsing phase
