@@ -149,13 +149,13 @@ namespace Kinematics {
         float segment_dist = dist / ((float)segment_count);  // distance of each segment...will be used for feedrate conversion
 
         for (uint32_t segment = 1; segment <= segment_count; segment++) {
-            log_debug("Segment:" << segment << " of " << segment_count);
+            //log_debug("Segment:" << segment << " of " << segment_count);
             // determine this segment's target
             seg_target[X_AXIS] = position[X_AXIS] + (dx / float(segment_count) * segment);
             seg_target[Y_AXIS] = position[Y_AXIS] + (dy / float(segment_count) * segment);
             seg_target[Z_AXIS] = position[Z_AXIS] + (dz / float(segment_count) * segment);
 
-            log_debug("Segment target (" << seg_target[0] << "," << seg_target[1] << "," << seg_target[2] << ")");
+            //log_debug("Segment target (" << seg_target[0] << "," << seg_target[1] << "," << seg_target[2] << ")");
 
             // calculate the delta motor angles
             bool calc_ok = transform_cartesian_to_motors(motor_angles, seg_target);
@@ -244,8 +244,10 @@ namespace Kinematics {
         float b = (y1 - y0) / z0;
         // discriminant
         float d = -(a + b * y1) * (a + b * y1) + rf * (b * b * rf + rf);
-        if (d < 0)
-            return false;                                 // non-existing point
+        if (d < 0) {
+            log_warn("Kinematics: Target unreachable");
+            return false;
+        }                                             // non-existing point
         float yj = (y1 - a * b - sqrt(d)) / (b * b + 1);  // choosing outer point
         float zj = a + b * yj;
 
@@ -290,31 +292,6 @@ namespace Kinematics {
 
         return calc_ok;
     }
-
-    // inverse kinematics: cartesian -> angles
-    // returned status: 0=OK, -1=non-existing position
-    // bool ParallelDelta::delta_calcInverse(float* motors, float* cartesian) {
-    //     motors[0] = motors[1] = motors[2] = 0;
-    //     bool calc_ok                      = false;
-
-    //     calc_ok = delta_calcAngleYZ(cartesian[X_AXIS], cartesian[Y_AXIS], cartesian[Z_AXIS], motors[0]);
-    //     if (!calc_ok)
-    //         return calc_ok;
-
-    //     calc_ok = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 + cartesian[Y_AXIS] * sin120,
-    //                                 cartesian[Y_AXIS] * cos120 - cartesian[X_AXIS] * sin120,
-    //                                 cartesian[Z_AXIS],
-    //                                 motors[1]);
-    //     if (!calc_ok)
-    //         return calc_ok;
-
-    //     calc_ok = delta_calcAngleYZ(cartesian[X_AXIS] * cos120 - cartesian[Y_AXIS] * sin120,
-    //                                 cartesian[Y_AXIS] * cos120 + cartesian[X_AXIS] * sin120,
-    //                                 cartesian[Z_AXIS],
-    //                                 motors[2]);
-
-    //     return calc_ok;
-    // }
 
     // Determine the unit distance between (2) 3D points
     float ParallelDelta::three_axis_dist(float* point1, float* point2) {

@@ -313,9 +313,9 @@ namespace MotorDrivers {
     }
 
     void Dynamixel2::send_bulk_message() {
-        static uint64_t ping = esp_timer_get_time() / 1000;
-        log_debug("Ping:" << esp_timer_get_time() / 1000 - ping);
-        ping = esp_timer_get_time() / 1000;
+        //static uint64_t ping = esp_timer_get_time() / 1000;
+        //log_debug("Ping:" << esp_timer_get_time() / 1000 - ping);
+        //ping = esp_timer_get_time() / 1000;
         dxl_finish_message(DXL_BROADCAST_ID, bulk_message, bulk_message_index - DXL_MSG_INSTR + 3);
     }
 

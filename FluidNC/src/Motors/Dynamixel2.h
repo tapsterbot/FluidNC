@@ -71,6 +71,7 @@ namespace MotorDrivers {
 
         // protocol 2 instruction numbers
         static const int  DXL_INSTR_PING = 0x01;
+        static const char DXL_REBOOT     = char(0x08);
         static const int  PING_RSP_LEN   = 14;
         static const char DXL_READ       = char(0x02);
         static const char DXL_WRITE      = char(0x03);

@@ -3,7 +3,7 @@ name: Tapster3
 meta:
 stepping:
   engine: RMT
-  idle_ms: 255
+  idle_ms: 2000
   pulse_us: 4
   dir_delay_us: 1
   disable_delay_us: 0
@@ -27,8 +27,8 @@ axes:
   shared_stepper_disable_pin: NO_PIN
   x:
     steps_per_mm: 100.000
-    max_rate_mm_per_min: 2000
-    acceleration_mm_per_sec2: 200.000
+    max_rate_mm_per_min: 8000
+    acceleration_mm_per_sec2: 300.000
     # pi/2 + pi/3
     max_travel_mm: 2.618
     soft_limits: false
@@ -47,7 +47,7 @@ axes:
       limit_pos_pin: NO_PIN
       limit_all_pin: NO_PIN
       hard_limits: false
-      pulloff_mm: 1.000
+      pulloff_mm: 0.00
       dynamixel2:
         id: 1
         uart:
@@ -62,8 +62,8 @@ axes:
 
   y:
     steps_per_mm: 100.000
-    max_rate_mm_per_min: 2000
-    acceleration_mm_per_sec2: 200.000
+    max_rate_mm_per_min: 8000
+    acceleration_mm_per_sec2: 300.000
     max_travel_mm: 2.618
     soft_limits: false
     homing:
@@ -81,7 +81,7 @@ axes:
       limit_pos_pin: NO_PIN
       limit_all_pin: NO_PIN
       hard_limits: false
-      pulloff_mm: 1.000
+      pulloff_mm: 0.00
       dynamixel2:
         id: 2
         count_min: 2048
@@ -89,8 +89,8 @@ axes:
         timer_ms: 40
   z:
     steps_per_mm: 100.000
-    max_rate_mm_per_min: 2000
-    acceleration_mm_per_sec2: 200.000
+    max_rate_mm_per_min: 8000
+    acceleration_mm_per_sec2: 300.000
     max_travel_mm: 2.618
     soft_limits: false
     homing:
@@ -108,7 +108,7 @@ axes:
       limit_pos_pin: NO_PIN
       limit_all_pin: NO_PIN
       hard_limits: false
-      pulloff_mm: 1.000
+      pulloff_mm: 0.00
       dynamixel2:
         id: 3
         count_min: 2048
