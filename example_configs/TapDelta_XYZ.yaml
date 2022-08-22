@@ -29,8 +29,7 @@ axes:
     steps_per_mm: 100.000
     max_rate_mm_per_min: 8000
     acceleration_mm_per_sec2: 300.000
-    # pi/2 + pi/3
-    max_travel_mm: 2.618
+    max_travel_mm: 1.571
     soft_limits: false
     homing:
       cycle: 1
@@ -47,7 +46,7 @@ axes:
       limit_pos_pin: NO_PIN
       limit_all_pin: NO_PIN
       hard_limits: false
-      pulloff_mm: 0.00
+      pulloff_mm: 1.00
       dynamixel2:
         id: 1
         uart:
@@ -58,13 +57,13 @@ axes:
           mode: 8N1
         count_min: 2048
         count_max: 3072
-        timer_ms: 40
+        timer_ms: 30
 
   y:
     steps_per_mm: 100.000
     max_rate_mm_per_min: 8000
     acceleration_mm_per_sec2: 300.000
-    max_travel_mm: 2.618
+    max_travel_mm: 1.571
     soft_limits: false
     homing:
       cycle: 1
@@ -81,17 +80,17 @@ axes:
       limit_pos_pin: NO_PIN
       limit_all_pin: NO_PIN
       hard_limits: false
-      pulloff_mm: 0.00
+      pulloff_mm: 1.00
       dynamixel2:
         id: 2
         count_min: 2048
         count_max: 3072
-        timer_ms: 40
+        timer_ms: 30
   z:
     steps_per_mm: 100.000
     max_rate_mm_per_min: 8000
     acceleration_mm_per_sec2: 300.000
-    max_travel_mm: 2.618
+    max_travel_mm: 1.571
     soft_limits: false
     homing:
       cycle: 1
@@ -108,12 +107,12 @@ axes:
       limit_pos_pin: NO_PIN
       limit_all_pin: NO_PIN
       hard_limits: false
-      pulloff_mm: 0.00
+      pulloff_mm: 1.00
       dynamixel2:
         id: 3
         count_min: 2048
         count_max: 3072
-        timer_ms: 40
+        timer_ms: 30
 
 spi:
   miso_pin: gpio.19
