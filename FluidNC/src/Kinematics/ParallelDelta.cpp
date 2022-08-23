@@ -76,6 +76,7 @@ namespace Kinematics {
         handler.item("kinematic_segment_len_mm", _kinematic_segment_len_mm, 0.05, 20.0);  //
         handler.item("homing_mpos_radians", _homing_mpos);
         handler.item("soft_limits", _softLimits);
+        handler.item("max_z_mm", _max_z, -10000.0, 0.0);  //
     }
 
     void ParallelDelta::init() {
@@ -117,6 +118,11 @@ namespace Kinematics {
         bool  show_error = true;                // shows error once
 
         bool calc_ok = true;
+
+        if (target[Z_AXIS] > _max_z) {
+            log_debug("Kinematics error. Target:" << target[Z_AXIS] << " exceeds max_z:" << _max_z);
+            return false;
+        }
 
         //log_debug("Target (" << target[0] << "," << target[1] << "," << target[2]);
 
@@ -247,7 +253,7 @@ namespace Kinematics {
         if (d < 0) {
             log_warn("Kinematics: Target unreachable");
             return false;
-        }                                             // non-existing point
+        }                                                 // non-existing point
         float yj = (y1 - a * b - sqrt(d)) / (b * b + 1);  // choosing outer point
         float zj = a + b * yj;
 
@@ -271,6 +277,11 @@ namespace Kinematics {
     bool ParallelDelta::transform_cartesian_to_motors(float* motors, float* cartesian) {
         motors[0] = motors[1] = motors[2] = 0;
         bool calc_ok                      = false;
+
+        if (cartesian[Z_AXIS] > _max_z) {
+            log_debug("Kinematics transform error. Target:" << cartesian[Z_AXIS] << " exceeds max_z:" << _max_z);
+            return false;
+        }
 
         calc_ok = delta_calcAngleYZ(cartesian[X_AXIS], cartesian[Y_AXIS], cartesian[Z_AXIS], motors[0]);
         if (!calc_ok) {
