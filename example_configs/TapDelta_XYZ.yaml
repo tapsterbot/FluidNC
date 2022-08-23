@@ -1,6 +1,14 @@
+# This config defines an arm motion range from 30 deg up to 90 deg down
+# 30 deg is pi/6 or 0.524 Radians
+# 90 deg is pi/2 or 1.571 radians
+# Max travel = 2.094
+# 2048 is the 0 point on the dynamixel in this design and the total is 4096
+# Up is 2048-341 = 1707
+# Down is 2048 + 1024 = 3072 
+
 board: Tap Delta
-name: Tapster3
-meta:
+name: Tapster3 +30-90
+meta: B. Dring for Tapster
 stepping:
   engine: RMT
   idle_ms: 2000
@@ -17,6 +25,7 @@ kinematics:
     kinematic_segment_len_mm: 0.500
     homing_mpos_radians: 0.0
     soft_limits: true
+    max_z_mm: -90.0
 
 start:
   must_home: false
@@ -29,24 +38,14 @@ axes:
     steps_per_mm: 100.000
     max_rate_mm_per_min: 8000
     acceleration_mm_per_sec2: 300.000
-    max_travel_mm: 1.571
+    max_travel_mm: 2.094
     soft_limits: false
     homing:
       cycle: 1
       positive_direction: false
-      mpos_mm: 0.0
-      feed_mm_per_min: 100.000
-      seek_mm_per_min: 200.000
-      settle_ms: 500
-      seek_scaler: 1.100
-      feed_scaler: 1.100
+      mpos_mm: -0.524
 
     motor0:
-      limit_neg_pin: NO_PIN
-      limit_pos_pin: NO_PIN
-      limit_all_pin: NO_PIN
-      hard_limits: false
-      pulloff_mm: 1.00
       dynamixel2:
         id: 1
         uart:
@@ -55,7 +54,7 @@ axes:
           rts_pin: gpio.17
           baud: 1000000
           mode: 8N1
-        count_min: 2048
+        count_min: 1707
         count_max: 3072
         timer_ms: 30
 
@@ -63,54 +62,34 @@ axes:
     steps_per_mm: 100.000
     max_rate_mm_per_min: 8000
     acceleration_mm_per_sec2: 300.000
-    max_travel_mm: 1.571
+    max_travel_mm: 2.094
     soft_limits: false
     homing:
       cycle: 1
       positive_direction: false
-      mpos_mm: 0.0
-      feed_mm_per_min: 100.000
-      seek_mm_per_min: 200.000
-      settle_ms: 500
-      seek_scaler: 1.100
-      feed_scaler: 1.100
+      mpos_mm:  -0.524
 
     motor0:
-      limit_neg_pin: NO_PIN
-      limit_pos_pin: NO_PIN
-      limit_all_pin: NO_PIN
-      hard_limits: false
-      pulloff_mm: 1.00
       dynamixel2:
         id: 2
-        count_min: 2048
+        count_min: 1707
         count_max: 3072
         timer_ms: 30
   z:
     steps_per_mm: 100.000
     max_rate_mm_per_min: 8000
     acceleration_mm_per_sec2: 300.000
-    max_travel_mm: 1.571
+    max_travel_mm: 2.094
     soft_limits: false
     homing:
       cycle: 1
       positive_direction: false
-      mpos_mm: 0.0
-      feed_mm_per_min: 100.000
-      seek_mm_per_min: 200.000
-      settle_ms: 500
-      seek_scaler: 1.100
-      feed_scaler: 1.100
-        
+      mpos_mm:  -0.524
+      
     motor0:
-      limit_neg_pin: NO_PIN
-      limit_pos_pin: NO_PIN
-      limit_all_pin: NO_PIN
-      hard_limits: false
-      pulloff_mm: 1.00
       dynamixel2:
         id: 3
-        count_min: 2048
+        count_min: 1707
         count_max: 3072
         timer_ms: 30
 
