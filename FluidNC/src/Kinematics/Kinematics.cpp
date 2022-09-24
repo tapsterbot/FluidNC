@@ -38,6 +38,11 @@ namespace Kinematics {
         return _system->transform_cartesian_to_motors(motors, cartesian);
     }
 
+    bool Kinematics::soft_limit_error_exists(float* cartesian) {
+        Assert(_system != nullptr, "No kinematic system");
+        return _system->soft_limit_error_exists(cartesian);
+    }
+
     void Kinematics::group(Configuration::HandlerBase& handler) {
         ::Kinematics::KinematicsFactory::factory(handler, _system);
     }

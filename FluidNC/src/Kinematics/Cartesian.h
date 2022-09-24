@@ -27,6 +27,7 @@ namespace Kinematics {
         virtual void init() override;
         void         motors_to_cartesian(float* cartesian, float* motors, int n_axis) override;
         virtual bool transform_cartesian_to_motors(float* motors, float* cartesian) override;
+        virtual bool soft_limit_error_exists(float* cartesian) override;
 
         bool canHome(AxisMask axisMask) override;
         void releaseMotors(AxisMask axisMask, MotorMask motors, Machine::Homing::Phase phase) override;

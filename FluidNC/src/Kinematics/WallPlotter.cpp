@@ -37,6 +37,11 @@ namespace Kinematics {
         return true;
     }
 
+    bool WallPlotter::soft_limit_error_exists(float* cartesian) {
+        // Need to fix this.
+        return false;
+    }
+
     /*
       cartesian_to_motors() converts from cartesian coordinates to motor space.
 

@@ -25,6 +25,20 @@ namespace Kinematics {
         return true;
     }
 
+    bool Cartesian::soft_limit_error_exists(float* cartesian) {
+        bool limit_error = false;
+
+        for (int axis = 0; axis < config->_axes->_numberAxis; axis++) {
+            if (config->_axes->_axis[axis]->_softLimits &&
+                (cartesian[axis] < limitsMinPosition(axis) || cartesian[axis] > limitsMaxPosition(axis))) {
+                String axis_letter = String(Machine::Axes::_names[axis]);
+                log_info("Soft limit on " << axis_letter << " target:" << cartesian[axis]);
+                limit_error = true;
+            }
+        }
+        return limit_error;
+    }
+
     bool Cartesian::canHome(AxisMask axisMask) {
         if (ambiguousLimit()) {
             log_error("Ambiguous limit switch touching. Manually clear all switches");
