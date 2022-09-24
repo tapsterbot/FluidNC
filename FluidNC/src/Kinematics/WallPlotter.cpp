@@ -29,8 +29,12 @@ namespace Kinematics {
         last_z     = 0;
     }
 
-    void WallPlotter::transform_cartesian_to_motors(float* cartesian, float* motors) {
+    bool WallPlotter::transform_cartesian_to_motors(float* motors, float* cartesian) {
+        // Motor space is cartesian space, so we do no transform.
+        // TO DO fix this
         log_error("WallPlotter::transform_cartesian_to_motors is broken");
+        copyAxes(motors, cartesian);
+        return true;
     }
 
     /*

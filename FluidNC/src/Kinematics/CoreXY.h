@@ -20,10 +20,10 @@ namespace Kinematics {
     public:
         CoreXY() = default;
 
-        CoreXY(const CoreXY&) = delete;
-        CoreXY(CoreXY&&)      = delete;
+        CoreXY(const CoreXY&)            = delete;
+        CoreXY(CoreXY&&)                 = delete;
         CoreXY& operator=(const CoreXY&) = delete;
-        CoreXY& operator=(CoreXY&&) = delete;
+        CoreXY& operator=(CoreXY&&)      = delete;
 
         // Kinematic Interface
 
@@ -34,13 +34,12 @@ namespace Kinematics {
         bool canHome(AxisMask axisMask) override;
         void releaseMotors(AxisMask axisMask, MotorMask motors, Machine::Homing::Phase phase) override;
         bool limitReached(AxisMask& axisMask, MotorMask& motors, MotorMask limited);
-
+        bool transform_cartesian_to_motors(float* motors, float* cartesian) override;
+        
         // Configuration handlers:
         void         validate() const override {}
         virtual void group(Configuration::HandlerBase& handler) override;
         void         afterParse() override {}
-
-        void transform_cartesian_to_motors(float* motors, float* cartesian) override;
 
         // Name of the configurable. Must match the name registered in the cpp file.
         virtual const char* name() const override { return "CoreXY"; }

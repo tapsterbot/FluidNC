@@ -5,7 +5,9 @@
 #include "src/Limits.h"
 
 namespace Kinematics {
-    void Cartesian::init() { log_info("Kinematic system: " << name()); }
+    void Cartesian::init() {
+        log_info("Kinematic system: " << name());
+    }
 
     bool Cartesian::cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position) {
         // Motor space is cartesian space, so we do no transform.
@@ -17,9 +19,10 @@ namespace Kinematics {
         copyAxes(cartesian, motors);
     }
 
-    void Cartesian::transform_cartesian_to_motors(float* motors, float* cartesian) {
+    bool Cartesian::transform_cartesian_to_motors(float* motors, float* cartesian) {
         // Motor space is cartesian space, so we do no transform.
         copyAxes(motors, cartesian);
+        return true;
     }
 
     bool Cartesian::canHome(AxisMask axisMask) {
