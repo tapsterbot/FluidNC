@@ -1,6 +1,8 @@
 #include "WallPlotter.h"
 
 #include "../Machine/MachineConfig.h"
+#include "src/Machine/Axes.h"
+#include "src/Limits.h"
 
 #include <cmath>
 
@@ -18,7 +20,7 @@ namespace Kinematics {
     }
 
     void WallPlotter::init() {
-        log_info("Kinematic system: " << name());
+        log_info("Kinematic system: " << name() << ", Do not use.");
 
         // We assume the machine starts at cartesian (0, 0, 0).
         // The motors assume they start from (0, 0, 0).
@@ -30,16 +32,31 @@ namespace Kinematics {
     }
 
     bool WallPlotter::transform_cartesian_to_motors(float* motors, float* cartesian) {
-        // Motor space is cartesian space, so we do no transform.
-        // TO DO fix this
-        log_error("WallPlotter::transform_cartesian_to_motors is broken");
-        copyAxes(motors, cartesian);
+        float length_left, length_right;
+        xy_to_lengths(cartesian[X_AXIS], cartesian[Y_AXIS], length_left, length_right);
+        motors[_left_axis]  = 0 - length_left + zero_left;
+        motors[_right_axis] = 0 + length_right - zero_right;
+
+        auto n_axis = config->_axes->_numberAxis;
+        for (size_t axis = Z_AXIS; axis < n_axis; axis++) {
+            motors[axis] = cartesian[axis];
+        }
         return true;
     }
 
+    // TODO needs to be customized for wallplotter
     bool WallPlotter::soft_limit_error_exists(float* cartesian) {
-        // Need to fix this.
-        return false;
+        bool limit_error = false;
+
+        for (int axis = 0; axis < config->_axes->_numberAxis; axis++) {
+            if (config->_axes->_axis[axis]->_softLimits &&
+                (cartesian[axis] < limitsMinPosition(axis) || cartesian[axis] > limitsMaxPosition(axis))) {
+                String axis_letter = String(Machine::Axes::_names[axis]);
+                log_info("Soft limit on " << axis_letter << " target:" << cartesian[axis]);
+                limit_error = true;
+            }
+        }
+        return limit_error;
     }
 
     /*
@@ -58,7 +75,7 @@ namespace Kinematics {
 
         // calculate the total X,Y axis move distance
         // Z axis is the same in both coord systems, so it does not undergo conversion
-        float dist = vector_distance(target, position, 2); // Only compute distance for both axes. X and Y
+        float dist = vector_distance(target, position, 2);  // Only compute distance for both axes. X and Y
         // Segment our G1 and G0 moves based on yaml file. If we choose a small enough _segment_length we can hide the nonlinearity
         segment_count = dist / _segment_length;
         if (segment_count < 1) {  // Make sure there is at least one segment, even if there is no movement
@@ -67,22 +84,22 @@ namespace Kinematics {
             segment_count = 1;
         }
         // Calc distance of individual cartesian segments
-        dx = (target[X_AXIS] - position[X_AXIS])/segment_count; 
-        dy = (target[Y_AXIS] - position[Y_AXIS])/segment_count; 
-        dz = (target[Z_AXIS] - position[Z_AXIS])/segment_count;
-        // Current cartesian end point of the segment        
-        float seg_x = position[X_AXIS];  
+        dx = (target[X_AXIS] - position[X_AXIS]) / segment_count;
+        dy = (target[Y_AXIS] - position[Y_AXIS]) / segment_count;
+        dz = (target[Z_AXIS] - position[Z_AXIS]) / segment_count;
+        // Current cartesian end point of the segment
+        float seg_x = position[X_AXIS];
         float seg_y = position[Y_AXIS];
         float seg_z = position[Z_AXIS];
         // Calculate desired cartesian feedrate distance ratio. Same for each seg.
-        float vdcart_ratio = pl_data->feed_rate/(dist/segment_count);
+        float vdcart_ratio = pl_data->feed_rate / (dist / segment_count);
         for (uint32_t segment = 1; segment <= segment_count; segment++) {
             // calc next cartesian end point of the next segment
             seg_x += dx;
             seg_y += dy;
             seg_z += dz;
             // Convert cartesian space coords to motor space
-            float seg_left, seg_right; 
+            float seg_left, seg_right;
             xy_to_lengths(seg_x, seg_y, seg_left, seg_right);
 #ifdef USE_CHECKED_KINEMATICS
             // Check the inverse computation.
@@ -93,15 +110,15 @@ namespace Kinematics {
             if (abs(seg_x - cx) > 0.1 || abs(seg_y - cy) > 0.1) {
                 // FIX: Produce an alarm state?
             }
-#endif  // end USE_CHECKED_KINEMATICS
-            // Set interpolated feedrate in motor space for this segment to
-            // get desired feedrate in cartesian space
-            if (!pl_data->motion.rapidMotion) { // Rapid motions ignore feedrate. Don't convert.
-              // T=D/V, Tcart=Tmotor, Dcart/Vcart=Dmotor/Vmotor
-              // Vmotor = Dmotor*(Vcart/Dcart)
-              pl_data->feed_rate = hypot_f(last_left-seg_left,last_right-seg_right)*vdcart_ratio; 
+#endif  // end USE_CHECKED_KINEMATICS                                                                                                      \
+    // Set interpolated feedrate in motor space for this segment to                                                                        \
+    // get desired feedrate in cartesian space
+            if (!pl_data->motion.rapidMotion) {  // Rapid motions ignore feedrate. Don't convert.
+                // T=D/V, Tcart=Tmotor, Dcart/Vcart=Dmotor/Vmotor
+                // Vmotor = Dmotor*(Vcart/Dcart)
+                pl_data->feed_rate = hypot_f(last_left - seg_left, last_right - seg_right) * vdcart_ratio;
             }
-            // TODO: G93 pl_data->motion.inverseTime logic?? Does this even make sense for wallplotter? 
+            // TODO: G93 pl_data->motion.inverseTime logic?? Does this even make sense for wallplotter?
             // Remember absolute motor lengths for next time
             last_left  = seg_left;
             last_right = seg_right;
