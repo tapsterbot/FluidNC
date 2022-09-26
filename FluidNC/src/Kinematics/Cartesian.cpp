@@ -25,6 +25,10 @@ namespace Kinematics {
         return true;
     }
 
+    bool Cartesian::kinematics_homing(AxisMask& axisMask) {
+        return false;  // kinematics does not do the homing for catesian systems
+    }
+
     bool Cartesian::soft_limit_error_exists(float* cartesian) {
         bool limit_error = false;
 
@@ -39,7 +43,7 @@ namespace Kinematics {
         return limit_error;
     }
 
-    bool Cartesian::canHome(AxisMask axisMask) {
+    bool Cartesian::canHome(AxisMask& axisMask) {
         if (ambiguousLimit()) {
             log_error("Ambiguous limit switch touching. Manually clear all switches");
             return false;

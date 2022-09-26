@@ -241,6 +241,27 @@ namespace Kinematics {
         cartesian[Y_AXIS] = (a2 * cartesian[Z_AXIS] + b2) / dnm;
     }
 
+    bool ParallelDelta::canHome(AxisMask& axisMask) {
+        return true;  // signal main code that this handled all homing
+    }
+
+    bool ParallelDelta::kinematics_homing(AxisMask& axisMask) {
+        auto axes   = config->_axes;
+        auto n_axis = axes->_numberAxis;
+
+        log_debug("kinematics_homing");
+        config->_axes->set_disable(false);
+
+        // TODO deal with non kinematic axes above Z
+        for (int axis = 0; axis < 3; axis++) {
+            //set_motor_steps(axis, mpos_to_steps(axes->_axis[axis]->_homing->_mpos, axis));
+            int32_t steps = mpos_to_steps(_homing_mpos, axis);
+            set_motor_steps(axis, steps);
+        }
+        protocol_disable_steppers();
+        return true;  // signal main code that this handled all homing
+    }
+
     // helper functions, calculates angle theta1 (for YZ-pane)
     bool ParallelDelta::delta_calcAngleYZ(float x0, float y0, float z0, float& theta) {
         float y1 = -0.5 * 0.57735 * f;  // f/2 * tg 30

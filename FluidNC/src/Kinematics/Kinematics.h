@@ -47,8 +47,9 @@ namespace Kinematics {
         void motors_to_cartesian(float* cartesian, float* motors, int n_axis);
         bool transform_cartesian_to_motors(float* motors, float* cartesian);
         bool soft_limit_error_exists(float* cartesian);
+        bool kinematics_homing(AxisMask& axisMask);
 
-        bool canHome(AxisMask axisMask);
+        bool canHome(AxisMask& axisMask);
         void releaseMotors(AxisMask axisMask, MotorMask motors, Machine::Homing::Phase phase);
         bool limitReached(AxisMask& axisMask, MotorMask& motors, MotorMask limited);
 
@@ -71,8 +72,9 @@ namespace Kinematics {
         virtual void motors_to_cartesian(float* cartesian, float* motors, int n_axis)               = 0;
         virtual bool transform_cartesian_to_motors(float* motors, float* cartesian)                 = 0;
         virtual bool soft_limit_error_exists(float* cartesian)                                      = 0;
+        virtual bool kinematics_homing(AxisMask& axisMask)                                          = 0;
 
-        virtual bool canHome(AxisMask axisMask) { return false; }
+        virtual bool canHome(AxisMask& axisMask) { return false; }
         virtual void releaseMotors(AxisMask axisMask, MotorMask motors, Machine::Homing::Phase phase) {}
         virtual bool limitReached(AxisMask& axisMask, MotorMask& motors, MotorMask limited) { return false; }
 

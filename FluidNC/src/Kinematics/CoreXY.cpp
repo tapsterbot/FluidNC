@@ -37,7 +37,7 @@ namespace Kinematics {
         config->_axes->_axis[Y_AXIS]->_motors[0]->limitOtherAxis(X_AXIS);
     }
 
-    bool CoreXY::canHome(AxisMask axisMask) {
+    bool CoreXY::canHome(AxisMask& axisMask) {
         // make sure there are no axes that are not in homingMask
         if (axisMask && !(axisMask & Machine::Axes::homingMask)) {
             log_error("Not a homed axis:");

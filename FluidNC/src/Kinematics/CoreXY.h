@@ -31,7 +31,7 @@ namespace Kinematics {
         bool         cartesian_to_motors(float* target, plan_line_data_t* pl_data, float* position) override;
         void         motors_to_cartesian(float* cartesian, float* motors, int n_axis) override;
 
-        bool canHome(AxisMask axisMask) override;
+        bool canHome(AxisMask& axisMask) override;
         void releaseMotors(AxisMask axisMask, MotorMask motors, Machine::Homing::Phase phase) override;
         bool limitReached(AxisMask& axisMask, MotorMask& motors, MotorMask limited);
         bool transform_cartesian_to_motors(float* motors, float* cartesian) override;

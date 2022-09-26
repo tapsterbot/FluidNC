@@ -18,7 +18,7 @@ namespace Kinematics {
         return _system->motors_to_cartesian(cartesian, motors, n_axis);
     }
 
-    bool Kinematics::canHome(AxisMask axisMask) {
+    bool Kinematics::canHome(AxisMask& axisMask) {
         Assert(_system != nullptr, "No kinematic system");
         return _system->canHome(axisMask);
     }
@@ -36,6 +36,11 @@ namespace Kinematics {
     bool Kinematics::transform_cartesian_to_motors(float* motors, float* cartesian) {
         Assert(_system != nullptr, "No kinematic system");
         return _system->transform_cartesian_to_motors(motors, cartesian);
+    }
+
+    bool Kinematics::kinematics_homing(AxisMask& axisMask) {
+        Assert(_system != nullptr, "No kinematic system");
+        return _system->kinematics_homing(axisMask);
     }
 
     bool Kinematics::soft_limit_error_exists(float* cartesian) {
