@@ -256,7 +256,8 @@ static void check_startup_state() {
                 protocol_execute_realtime();  // Enter safety door mode. Should return as IDLE state.
             }
             // All systems go!
-            settings_execute_startup();  // Execute startup script.
+            config->_macros->run_startup_macro(); // new macro
+            settings_execute_startup();  // POG style $N<n> lines
         }
     }
 }

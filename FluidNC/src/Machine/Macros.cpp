@@ -56,6 +56,17 @@ bool Macros::run_macro(size_t index) {
         return true;
     }
 
+    return execute_macro(macro);
+}
+
+bool Macros::run_startup_macro() {
+    if (_startup_macro == "")
+        return false;
+
+    return execute_macro(_startup_macro);
+}
+
+bool Macros::execute_macro(std::string macro) {
     char c;
     for (int i = 0; i < macro.length(); i++) {
         c = macro[i];

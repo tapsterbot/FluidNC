@@ -30,6 +30,7 @@ namespace Machine {
         static const int n_macros        = 4;
 
     private:
+        std::string _startup_macro;
         std::string _startup_line[n_startup_lines];
         std::string _macro[n_macros];
 
@@ -37,6 +38,9 @@ namespace Machine {
         Macros() = default;
 
         bool run_macro(size_t index);
+        bool run_startup_macro();
+
+        bool execute_macro(std::string macro);
 
         std::string startup_line(size_t index) {
             if (index >= n_startup_lines) {
@@ -57,6 +61,7 @@ namespace Machine {
         // TODO: We could validate the startup lines
 
         void group(Configuration::HandlerBase& handler) override {
+            handler.item("startup_macro", _startup_macro);
             handler.item("startup_line0", _startup_line[0]);
             handler.item("startup_line1", _startup_line[1]);
             handler.item("macro0", _macro[0]);

@@ -298,6 +298,7 @@ static Error report_ngc(const char* value, WebUI::AuthenticationLevel auth_level
     return Error::Ok;
 }
 static Error home(AxisMask axisMask) {
+    protocol_buffer_synchronize();
     if (axisMask != Machine::Homing::AllCycles) {  // if not AllCycles we need to make sure the cycle is not prohibited
         // if there is a cycle it is the axis from $H<axis>
         auto n_axis = config->_axes->_numberAxis;
@@ -327,8 +328,6 @@ static Error home(AxisMask axisMask) {
     do {
         protocol_execute_realtime();
     } while (sys.state == State::Homing);
-
-    settings_execute_startup();
 
     return Error::Ok;
 }
@@ -778,19 +777,19 @@ void make_user_commands() {
     new UserCommand("NVX", "Settings/Erase", Setting::eraseNVS, notIdleOrAlarm, WA);
     new UserCommand("V", "Settings/Stats", Setting::report_nvs_stats, notIdleOrAlarm);
     new UserCommand("#", "GCode/Offsets", report_ngc, notIdleOrAlarm);
-    new UserCommand("H", "Home", home_all, notIdleOrAlarm);
+    new UserCommand("H", "Home", home_all, anyState);
     new UserCommand("MD", "Motor/Disable", motor_disable, notIdleOrAlarm);
     new UserCommand("ME", "Motor/Enable", motor_enable, notIdleOrAlarm);
     new UserCommand("MI", "Motors/Init", motors_init, notIdleOrAlarm);
 
     new UserCommand("RM", "Macros/Run", macros_run, notIdleOrAlarm);
 
-    new UserCommand("HX", "Home/X", home_x, notIdleOrAlarm);
-    new UserCommand("HY", "Home/Y", home_y, notIdleOrAlarm);
-    new UserCommand("HZ", "Home/Z", home_z, notIdleOrAlarm);
-    new UserCommand("HA", "Home/A", home_a, notIdleOrAlarm);
-    new UserCommand("HB", "Home/B", home_b, notIdleOrAlarm);
-    new UserCommand("HC", "Home/C", home_c, notIdleOrAlarm);
+    new UserCommand("HX", "Home/X", home_x, anyState);
+    new UserCommand("HY", "Home/Y", home_y, anyState);
+    new UserCommand("HZ", "Home/Z", home_z, anyState);
+    new UserCommand("HA", "Home/A", home_a, anyState);
+    new UserCommand("HB", "Home/B", home_b, anyState);
+    new UserCommand("HC", "Home/C", home_c, anyState);
 
     new UserCommand("SLP", "System/Sleep", go_to_sleep, notIdleOrAlarm);
     new UserCommand("I", "Build/Info", get_report_build_info, notIdleOrAlarm);
