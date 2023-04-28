@@ -63,6 +63,8 @@ bool Macros::run_startup_macro() {
     if (_startup_macro == "")
         return false;
 
+    log_info("Running startup macro:" << _startup_macro);
+
     return execute_macro(_startup_macro);
 }
 

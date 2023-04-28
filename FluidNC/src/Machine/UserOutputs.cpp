@@ -40,7 +40,10 @@ namespace Machine {
     void UserOutputs::all_off() {
         for (size_t io_num = 0; io_num < MaxUserDigitalPin; io_num++) {
             setDigital(io_num, false);
-            setAnalogPercent(io_num, 0);
+        }
+
+        for (size_t io_num = 0; io_num < MaxUserAnalogPin; io_num++) {
+            setDigital(io_num, false);
         }
     }
 
@@ -61,13 +64,13 @@ namespace Machine {
             return percent == 0.0;
         }
 
-        uint32_t duty = uint32_t(percent / 100.0f * _denominator[io_num]);
-
         auto pwm = _pwm[io_num];
         if (!pwm) {
             log_error("M67 PWM channel error");
             return false;
         }
+
+        uint32_t duty = uint32_t(percent * pwm->period() / 100.0f);
 
         if (_current_value[io_num] == duty) {
             return true;
