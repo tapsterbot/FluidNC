@@ -256,8 +256,11 @@ static void check_startup_state() {
                 protocol_execute_realtime();  // Enter safety door mode. Should return as IDLE state.
             }
             // All systems go!
-            config->_macros->run_startup_macro(); // new macro
-            settings_execute_startup();  // POG style $N<n> lines
+            if (!config->_start->_mustHome) {
+                config->_macros->run_startup_macro();  // new macro
+            }
+
+            //settings_execute_startup();  // POG style $N<n> lines
         }
     }
 }
@@ -291,6 +294,7 @@ void protocol_main_loop() {
         protocol_auto_cycle_start();
         protocol_execute_realtime();  // Runtime command check point.
         if (sys.abort) {
+            log_info("protocol main loop sys.abort");
             stop_polling();
             return;  // Bail to main() program loop to reset system.
         }

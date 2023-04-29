@@ -188,6 +188,7 @@ void loop() {
         // This can exit on a system abort condition, in which case run_once()
         // is re-executed by an enclosing loop.  It can also exit via a
         // throw that is caught and handled below.
+        log_info("loop state:" << state_name());
         protocol_main_loop();
     } catch (const AssertionFailed& ex) {
         // If an assertion fails, we display a message and restart.

@@ -31,8 +31,11 @@ namespace Machine {
 
     private:
         std::string _startup_macro;
-        std::string _startup_line[n_startup_lines];
+        std::string _post_home_macro;
+        std::string _reset_macro;
+        std::string _m30_macro;
         std::string _macro[n_macros];
+        std::string _startup_line[n_startup_lines];
 
     public:
         Macros() = default;
@@ -62,8 +65,9 @@ namespace Machine {
 
         void group(Configuration::HandlerBase& handler) override {
             handler.item("startup_macro", _startup_macro);
-            handler.item("startup_line0", _startup_line[0]);
-            handler.item("startup_line1", _startup_line[1]);
+            handler.item("post_home", _post_home_macro);
+            handler.item("reset", _reset_macro);
+            handler.item("m30", _m30_macro);
             handler.item("macro0", _macro[0]);
             handler.item("macro1", _macro[1]);
             handler.item("macro2", _macro[2]);
