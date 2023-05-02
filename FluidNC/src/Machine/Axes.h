@@ -34,6 +34,8 @@ namespace Machine {
         static inline AxisMask  motors_to_axes(MotorMask motors) { return (motors & 0xffff) | (motors >> 16); }
         static inline MotorMask axes_to_motors(AxisMask axes) { return axes | (axes << 16); }
 
+        static void check_homing_required();
+
         Pin _sharedStepperDisable;
         Pin _sharedStepperReset;
 

@@ -49,6 +49,12 @@ namespace Machine {
         config_motors();
     }
 
+    void Axes::check_homing_required() {
+        if (config->_start->_mustHome && homingMask) {
+            sys.state = State::Alarm;
+        }
+    }
+
     void IRAM_ATTR Axes::set_disable(int axis, bool disable) {
         for (int motor = 0; motor < Axis::MAX_MOTORS_PER_AXIS; motor++) {
             auto m = _axis[axis]->_motors[motor];
