@@ -5,3 +5,4 @@
 
 void main_init();
 void run_once();
+void check_homing_required();

@@ -127,10 +127,7 @@ void setup() {
             // NOTE: The startup script will run after successful completion of the homing cycle, but
             // not after disabling the alarm locks. Prevents motion startup blocks from crashing into
             // things uncontrollably. Very bad.
-            if (config->_start->_mustHome && Machine::Axes::homingMask) {
-                // If there is an axis with homing configured, enter Alarm state on startup
-                sys.state = State::Alarm;
-            }
+            check_homing_required();
             for (auto s : config->_spindles) {
                 s->init();
             }
@@ -188,7 +185,7 @@ void loop() {
         // This can exit on a system abort condition, in which case run_once()
         // is re-executed by an enclosing loop.  It can also exit via a
         // throw that is caught and handled below.
-        log_info("loop state:" << state_name());
+        check_homing_required();
         protocol_main_loop();
     } catch (const AssertionFailed& ex) {
         // If an assertion fails, we display a message and restart.
@@ -210,6 +207,13 @@ void loop() {
     if (!sys.abort && ++tries > 1) {
         log_info("Stalling due to too many failures");
         while (1) {}
+    }
+}
+
+void check_homing_required() {
+    if (config->_start->_mustHome && Machine::Axes::homingMask) {
+        // If there is an axis with homing configured, enter Alarm state on startup
+        sys.state = State::Alarm;
     }
 }
 

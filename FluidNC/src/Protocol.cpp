@@ -294,7 +294,6 @@ void protocol_main_loop() {
         protocol_auto_cycle_start();
         protocol_execute_realtime();  // Runtime command check point.
         if (sys.abort) {
-            log_info("protocol main loop sys.abort");
             stop_polling();
             return;  // Bail to main() program loop to reset system.
         }
@@ -445,7 +444,6 @@ static void protocol_do_motion_cancel() {
             return;
 
         case State::Homing:
-            // XXX maybe motion cancel should stop homing
         case State::Sleep:
         case State::Hold:
         case State::SafetyDoor:
@@ -726,7 +724,9 @@ void protocol_do_cycle_stop() {
                 sys.state                    = State::SafetyDoor;
             } else {
                 sys.suspend.value = 0;
-                sys.state         = State::Idle;
+                if (sys.state != State::Alarm) {
+                    sys.state = State::Idle;
+                }
             }
             break;
         case State::Homing:
@@ -1057,7 +1057,6 @@ void protocol_send_event(Event* evt, void* arg) {
 void protocol_handle_events() {
     EventItem item;
     while (xQueueReceive(event_queue, &item, 0)) {
-        // log_debug("event");
         item.event->run(item.arg);
     }
 }
